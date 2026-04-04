@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TartakMobil — Mobilna Tartak Polska</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Karla:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #080C05;
+      --bg2:       #0F1509;
+      --bg3:       #141C0C;
+      --cream:     #F0E6CC;
+      --cream2:    #C9B99A;
+      --amber:     #D4851A;
+      --amber2:    #F0A030;
+      --green:     #2A5C18;
+      --green2:    #3D7A27;
+      --wood:      #8B5C2A;
+      --wood2:     #C4864A;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--cream);
+      font-family: 'Karla', sans-serif;
+      overflow-x: hidden;
+      cursor: none;
+    }
+
+    /* ─── CUSTOM CURSOR ─── */
+    .cursor {
+      position: fixed; width: 12px; height: 12px;
+      background: var(--amber); border-radius: 50%;
+      pointer-events: none; z-index: 9999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.1s, width 0.3s, height 0.3s, background 0.3s;
+      mix-blend-mode: difference;
+    }
+    .cursor-ring {
+      position: fixed; width: 40px; height: 40px;
+      border: 1px solid var(--amber); border-radius: 50%;
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%, -50%);
+      transition: transform 0.15s ease-out, width 0.3s, height 0.3s, opacity 0.3s;
+      opacity: 0.5;
+    }
+    .cursor.hover { width: 20px; height: 20px; background: var(--amber2); }
+    .cursor-ring.hover { width: 60px; height: 60px; opacity: 0.2; }
+
+    /* ─── NOISE OVERLAY ─── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    /* ─── NAV ─── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.5rem 4rem;
+      transition: background 0.4s, padding 0.4s, backdrop-filter 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(8,12,5,0.85);
+      backdrop-filter: blur(12px);
+      padding: 1rem 4rem;
+      border-bottom: 1px solid rgba(212,133,26,0.12);
+    }
+    .nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.6rem;
+      color: var(--cream);
+      text-decoration: none;
+      letter-spacing: -0.02em;
+    }
+    .nav-logo span { color: var(--amber); }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; }
+    .nav-links a {
+      color: var(--cream2); text-decoration: none;
+      font-size: 0.85rem; font-weight: 500; letter-spacing: 0.08em;
+      text-transform: uppercase;
+      position: relative; padding-bottom: 2px;
+      transition: color 0.3s;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: 0; left: 0;
+      width: 0; height: 1px; background: var(--amber);
+      transition: width 0.3s ease;
+    }
+    .nav-links a:hover { color: var(--cream); }
+    .nav-links a:hover::after { width: 100%; }
+    .nav-cta {
+      background: var(--amber); color: var(--bg);
+      padding: 0.6rem 1.4rem; border-radius: 2px;
+      font-weight: 700; font-size: 0.82rem;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .nav-cta:hover { background: var(--amber2); transform: translateY(-1px); }
+
+    /* ─── HERO ─── */
+    #hero {
+      position: relative; min-height: 100vh;
+      display: flex; align-items: center;
+      overflow: hidden;
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 60% 40%, rgba(42,92,24,0.25) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(212,133,26,0.12) 0%, transparent 50%),
+        linear-gradient(160deg, #080C05 0%, #0F1509 50%, #141C0C 100%);
+    }
+    .hero-rings {
+      position: absolute; right: -10%; top: 50%;
+      transform: translateY(-50%);
+      width: 700px; height: 700px;
+    }
+    .hero-rings circle {
+      fill: none; stroke-width: 1;
+      transform-origin: center;
+    }
+    .ring1 { stroke: rgba(212,133,26,0.15); animation: spinSlow 30s linear infinite; }
+    .ring2 { stroke: rgba(42,92,24,0.20); animation: spinSlow 45s linear infinite reverse; }
+    .ring3 { stroke: rgba(212,133,26,0.08); animation: spinSlow 20s linear infinite; }
+    .ring4 { stroke: rgba(240,160,48,0.12); animation: spinSlow 60s linear infinite reverse; }
+    @keyframes spinSlow { to { transform: rotate(360deg); } }
+
+    /* Sawblade animation */
+    .sawblade {
+      position: absolute; right: 8%; top: 50%;
+      transform: translateY(-50%);
+      width: 340px; height: 340px;
+      opacity: 0.12;
+      animation: spinBlade 8s linear infinite;
+    }
+    @keyframes spinBlade { to { transform: translateY(-50%) rotate(360deg); } }
+
+    .hero-content {
+      position: relative; z-index: 2;
+      padding: 0 4rem;
+      max-width: 700px;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 0.75rem;
+      font-size: 0.75rem; font-weight: 600;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--amber);
+      margin-bottom: 1.5rem;
+      opacity: 0; animation: fadeUp 0.8s 0.2s forwards;
+    }
+    .hero-eyebrow::before {
+      content: ''; display: block; width: 30px; height: 1px;
+      background: var(--amber);
+    }
+    h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(3.2rem, 7vw, 6rem);
+      line-height: 1.04;
+      letter-spacing: -0.025em;
+      color: var(--cream);
+      margin-bottom: 1.5rem;
+      opacity: 0; animation: fadeUp 0.9s 0.4s forwards;
+    }
+    h1 em {
+      font-style: italic; color: var(--amber);
+      display: block;
+    }
+    .hero-desc {
+      font-size: 1.1rem; line-height: 1.7;
+      color: var(--cream2);
+      max-width: 480px;
+      margin-bottom: 2.5rem;
+      opacity: 0; animation: fadeUp 0.9s 0.6s forwards;
+    }
+    .hero-btns {
+      display: flex; gap: 1rem; flex-wrap: wrap;
+      opacity: 0; animation: fadeUp 0.9s 0.8s forwards;
+    }
+    .btn-primary {
+      background: var(--amber); color: var(--bg);
+      padding: 0.9rem 2rem; border-radius: 2px;
+      font-weight: 700; font-size: 0.9rem;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      text-decoration: none;
+      transition: background 0.3s, transform 0.2s, box-shadow 0.3s;
+      box-shadow: 0 0 0 0 rgba(212,133,26,0);
+    }
+    .btn-primary:hover {
+      background: var(--amber2);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 30px rgba(212,133,26,0.35);
+    }
+    .btn-outline {
+      border: 1px solid rgba(240,230,204,0.3); color: var(--cream);
+      padding: 0.9rem 2rem; border-radius: 2px;
+      font-weight: 500; font-size: 0.9rem;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      text-decoration: none;
+      transition: border-color 0.3s, background 0.3s, transform 0.2s;
+    }
+    .btn-outline:hover {
+      border-color: var(--amber); background: rgba(212,133,26,0.08);
+      transform: translateY(-2px);
+    }
+    .hero-stats {
+      position: absolute; bottom: 3rem; left: 4rem; right: 4rem;
+      display: flex; gap: 3rem;
+      opacity: 0; animation: fadeUp 0.9s 1s forwards;
+    }
+    .stat { display: flex; flex-direction: column; gap: 0.2rem; }
+    .stat-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.2rem; color: var(--amber);
+      line-height: 1;
+    }
+    .stat-label {
+      font-size: 0.75rem; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--cream2);
+    }
+    .hero-scroll {
+      position: absolute; bottom: 3rem; right: 4rem;
+      display: flex; flex-direction: column; align-items: center;
+      gap: 0.5rem;
+      opacity: 0; animation: fadeIn 1s 1.4s forwards;
+    }
+    .hero-scroll span {
+      font-size: 0.68rem; letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--cream2); writing-mode: vertical-rl;
+    }
+    .scroll-line {
+      width: 1px; height: 60px;
+      background: linear-gradient(to bottom, var(--amber), transparent);
+      animation: scrollPulse 2s ease-in-out infinite;
+    }
+    @keyframes scrollPulse {
+      0%, 100% { opacity: 0.3; transform: scaleY(1); }
+      50% { opacity: 1; transform: scaleY(1.2); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; } to { opacity: 1; }
+    }
+
+    /* ─── SECTION BASE ─── */
+    section { position: relative; z-index: 1; }
+    .section-label {
+      display: inline-flex; align-items: center; gap: 0.75rem;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--amber);
+      margin-bottom: 1rem;
+    }
+    .section-label::before {
+      content: ''; display: block; width: 24px; height: 1px; background: var(--amber);
+    }
+    h2 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2.2rem, 4vw, 3.5rem);
+      line-height: 1.1; letter-spacing: -0.02em;
+      color: var(--cream);
+    }
+    h2 em { color: var(--amber); font-style: italic; }
+
+    /* ─── ABOUT ─── */
+    #about {
+      padding: 8rem 4rem;
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 6rem; align-items: center;
+      background: var(--bg2);
+    }
+    .about-visual {
+      position: relative; height: 520px;
+    }
+    .wood-card {
+      position: absolute;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+    .wood-card-main {
+      width: 320px; height: 400px;
+      top: 0; left: 0;
+      background: linear-gradient(135deg,
+        #3d2008 0%, #6b3a14 20%, #4a2710 40%,
+        #8b5c2a 60%, #5e3112 80%, #3a1e08 100%
+      );
+    }
+    .wood-card-main::before {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        87deg,
+        transparent 0px, transparent 6px,
+        rgba(0,0,0,0.06) 6px, rgba(0,0,0,0.06) 7px,
+        transparent 7px, transparent 18px,
+        rgba(255,255,255,0.03) 18px, rgba(255,255,255,0.03) 19px
+      );
+    }
+    .wood-lines {
+      position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        2deg,
+        transparent, transparent 6px,
+        rgba(255,255,255,0.04) 8px, rgba(255,255,255,0.04) 9px
+      );
+    }
+    .wood-badge {
+      position: absolute; bottom: -1.5rem; right: -1.5rem;
+      width: 130px; height: 130px;
+      background: var(--amber);
+      border-radius: 50%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 0.1rem;
+      box-shadow: 0 8px 30px rgba(212,133,26,0.4);
+      animation: float 3s ease-in-out infinite;
+    }
+    @keyframes float {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .wood-badge strong {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem; color: var(--bg); line-height: 1;
+    }
+    .wood-badge span {
+      font-size: 0.6rem; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; color: rgba(8,12,5,0.75);
+      text-align: center; line-height: 1.3;
+    }
+    .wood-card-sm {
+      width: 200px; height: 240px;
+      top: 5rem; right: 0;
+      background: linear-gradient(160deg, #1A2E10 0%, #2A4A18 50%, #1A2E10 100%);
+      border: 1px solid rgba(42,92,24,0.3);
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 1rem; padding: 1.5rem;
+    }
+    .icon-circle {
+      width: 64px; height: 64px;
+      background: rgba(212,133,26,0.15);
+      border-radius: 50%; border: 1px solid rgba(212,133,26,0.3);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.8rem;
+    }
+    .about-content h2 { margin-bottom: 1.5rem; }
+    .about-content p {
+      color: var(--cream2); line-height: 1.8; font-size: 1rem;
+      margin-bottom: 1.2rem;
+    }
+    .about-pills {
+      display: flex; flex-wrap: wrap; gap: 0.6rem;
+      margin-top: 2rem;
+    }
+    .pill {
+      background: rgba(212,133,26,0.1);
+      border: 1px solid rgba(212,133,26,0.25);
+      color: var(--amber2); padding: 0.4rem 1rem;
+      border-radius: 100px; font-size: 0.8rem;
+      font-weight: 500; letter-spacing: 0.05em;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .pill:hover { background: rgba(212,133,26,0.18); transform: translateY(-2px); }
+
+    /* ─── SERVICES ─── */
+    #services {
+      padding: 8rem 4rem;
+      background: var(--bg);
+    }
+    .services-header {
+      max-width: 600px; margin-bottom: 4rem;
+    }
+    .services-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1.5px;
+      background: rgba(240,230,204,0.06);
+    }
+    .service-card {
+      background: var(--bg2);
+      padding: 3rem 2.5rem;
+      position: relative; overflow: hidden;
+      transition: background 0.4s;
+    }
+    .service-card::before {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, var(--amber), var(--amber2));
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.4s ease;
+    }
+    .service-card:hover { background: var(--bg3); }
+    .service-card:hover::before { transform: scaleX(1); }
+    .service-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 4rem; color: rgba(212,133,26,0.08);
+      line-height: 1; margin-bottom: 1.5rem;
+      transition: color 0.4s;
+    }
+    .service-card:hover .service-num { color: rgba(212,133,26,0.14); }
+    .service-icon {
+      font-size: 2rem; margin-bottom: 1.2rem;
+    }
+    .service-card h3 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.5rem; margin-bottom: 0.8rem;
+      color: var(--cream);
+    }
+    .service-card p {
+      color: var(--cream2); line-height: 1.7; font-size: 0.92rem;
+    }
+    .service-card .service-link {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      margin-top: 1.5rem;
+      color: var(--amber); font-size: 0.8rem;
+      font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      text-decoration: none; opacity: 0;
+      transform: translateX(-8px);
+      transition: opacity 0.3s, transform 0.3s;
+    }
+    .service-card:hover .service-link { opacity: 1; transform: translateX(0); }
+
+    /* ─── HOW IT WORKS ─── */
+    #how {
+      padding: 8rem 4rem;
+      background: var(--bg2);
+    }
+    .how-header { max-width: 600px; margin-bottom: 5rem; }
+    .steps {
+      display: grid; grid-template-columns: repeat(4, 1fr);
+      gap: 0;
+    }
+    .step {
+      position: relative; padding: 2rem;
+    }
+    .step:not(:last-child)::after {
+      content: '→';
+      position: absolute; right: -0.8rem; top: 2.5rem;
+      font-size: 1.5rem; color: rgba(212,133,26,0.3);
+      z-index: 1;
+    }
+    .step-dot {
+      width: 56px; height: 56px;
+      background: var(--bg3); border: 1px solid rgba(212,133,26,0.25);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 1.5rem;
+      font-size: 1.4rem;
+      position: relative; z-index: 1;
+      transition: background 0.3s, border-color 0.3s, transform 0.3s;
+    }
+    .step:hover .step-dot {
+      background: rgba(212,133,26,0.1);
+      border-color: var(--amber);
+      transform: scale(1.1);
+    }
+    .step-num {
+      position: absolute; top: -0.5rem; right: -0.5rem;
+      width: 22px; height: 22px;
+      background: var(--amber); border-radius: 50%;
+      font-size: 0.65rem; font-weight: 700; color: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .step h4 {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.2rem; margin-bottom: 0.6rem; color: var(--cream);
+    }
+    .step p { color: var(--cream2); font-size: 0.88rem; line-height: 1.7; }
+
+    /* ─── WOOD TYPES / GALLERY ─── */
+    #gallery {
+      padding: 8rem 4rem;
+      background: var(--bg);
+    }
+    .gallery-header { max-width: 600px; margin-bottom: 3rem; }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: 280px 200px;
+      gap: 4px;
+    }
+    .gallery-item {
+      overflow: hidden; position: relative; border-radius: 2px;
+    }
+    .gallery-item:nth-child(1) { grid-column: span 3; }
+    .gallery-item:nth-child(2) { grid-column: span 2; }
+    .gallery-item:nth-child(3) { grid-column: span 1; }
+    .gallery-item:nth-child(4) { grid-column: span 2; }
+    .gallery-item:nth-child(5) { grid-column: span 2; }
+    .gallery-item:nth-child(6) { grid-column: span 2; }
+
+    .gallery-fill {
+      width: 100%; height: 100%;
+      transition: transform 0.6s ease;
+    }
+    .gallery-item:hover .gallery-fill { transform: scale(1.06); }
+
+    /* Synthetic wood/nature visuals using CSS */
+    .wood-texture-1 { background: linear-gradient(135deg, #8b5a2b 25%, #5d3a1a 100%); }
+    .wood-texture-2 { background: linear-gradient(135deg, #c17f35 25%, #8c4b1d 100%); }
+    .wood-texture-3 { background: linear-gradient(135deg, #a67c52 25%, #7d5233 100%); }
+    .wood-texture-4 { background: linear-gradient(135deg, #d2b48c 25%, #8b7355 100%); }
+    .wood-texture-5 { background: linear-gradient(135deg, #8b4513 25%, #5e2f0d 100%); }
+    .wood-texture-6 { background: linear-gradient(135deg, #8c7b6a 25%, #4a3f35 100%); }
+
+    .gallery-fill::before {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        89deg, transparent 0, transparent 8px,
+        rgba(0,0,0,0.07) 8px, rgba(0,0,0,0.07) 9px
+      );
+    }
+    .gallery-fill::after {
+      content: ''; position: absolute; inset: 0;
+      background: repeating-linear-gradient(
+        2deg, transparent, transparent 3px,
+        rgba(255,255,255,0.02) 3px, rgba(255,255,255,0.02) 4px
+      );
+    }
+
+    .gallery-overlay {
+      position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 60%);
+      display: flex; align-items: flex-end;
+      padding: 1.5rem;
+      opacity: 0; transition: opacity 0.3s;
+    }
+    .gallery-item:hover .gallery-overlay { opacity: 1; }
+    .gallery-overlay span {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.1rem; color: var(--cream);
+    }
+
+    /* ─── COVERAGE ─── */
+    #coverage {
+      padding: 8rem 4rem;
+      background: var(--bg2);
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 6rem; align-items: center;
+    }
+    .coverage-content h2 { margin-bottom: 1.5rem; }
+    .coverage-content p { color: var(--cream2); line-height: 1.8; margin-bottom: 1.2rem; }
+    .region-list {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 0.5rem; margin-top: 2rem;
+    }
+    .region-item {
+      display: flex; align-items: center; gap: 0.6rem;
+      color: var(--cream2); font-size: 0.88rem;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid rgba(240,230,204,0.06);
+      transition: color 0.3s;
+    }
+    .region-item:hover { color: var(--cream); }
+    .region-item::before {
+      content: ''; width: 6px; height: 6px;
+      background: var(--amber); border-radius: 50%; flex-shrink: 0;
+    }
+    .poland-map {
+      position: relative;
+    }
+    .map-container {
+      width: 100%; aspect-ratio: 1;
+      background: var(--bg3);
+      border-radius: 4px;
+      border: 1px solid rgba(240,230,204,0.08);
+      display: flex; align-items: center; justify-content: center;
+      position: relative; overflow: hidden;
+    }
+    .map-container::before {
+      content: ''; position: absolute; inset: 0;
+      background: radial-gradient(ellipse 70% 60% at 50% 50%,
+        rgba(42,92,24,0.12) 0%, transparent 70%);
+    }
+    .map-svg { width: 80%; opacity: 0.7; }
+    .pulse-dot {
+      position: absolute;
+      width: 12px; height: 12px;
+      background: var(--amber); border-radius: 50%;
+    }
+    .pulse-dot::after {
+      content: ''; position: absolute;
+      inset: -6px; border-radius: 50%;
+      border: 1px solid var(--amber);
+      animation: pulse 2s ease-out infinite;
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 0.6; }
+      100% { transform: scale(3); opacity: 0; }
+    }
+
+    /* ─── TESTIMONIALS ─── */
+    #testimonials {
+      padding: 8rem 4rem;
+      background: var(--bg);
+    }
+    .testimonials-header { max-width: 600px; margin-bottom: 4rem; }
+    .testimonials-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+    }
+    .testimonial-card {
+      background: var(--bg2);
+      border: 1px solid rgba(240,230,204,0.07);
+      border-radius: 3px;
+      padding: 2.5rem;
+      position: relative;
+      transition: border-color 0.3s, transform 0.3s;
+    }
+    .testimonial-card:hover {
+      border-color: rgba(212,133,26,0.2);
+      transform: translateY(-4px);
+    }
+    .quote-mark {
+      font-family: 'DM Serif Display', serif;
+      font-size: 5rem; line-height: 0.7;
+      color: rgba(212,133,26,0.15);
+      margin-bottom: 1rem;
+      display: block;
+    }
+    .testimonial-text {
+      color: var(--cream2); line-height: 1.75; font-size: 0.95rem;
+      margin-bottom: 2rem; font-style: italic;
+    }
+    .testimonial-author {
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .author-avatar {
+      width: 44px; height: 44px; border-radius: 50%;
+      background: var(--bg3); border: 1px solid rgba(212,133,26,0.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+    }
+    .author-name {
+      font-weight: 600; font-size: 0.9rem; color: var(--cream);
+    }
+    .author-location {
+      font-size: 0.78rem; color: var(--cream2); margin-top: 0.1rem;
+    }
+    .stars { color: var(--amber); font-size: 0.85rem; margin-bottom: 0.2rem; }
+
+    /* ─── CONTACT ─── */
+    #contact {
+      padding: 8rem 4rem;
+      background: var(--bg2);
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 6rem; align-items: start;
+    }
+    .contact-info h2 { margin-bottom: 1.5rem; }
+    .contact-info p { color: var(--cream2); line-height: 1.8; margin-bottom: 2.5rem; }
+    .contact-items { display: flex; flex-direction: column; gap: 1.2rem; }
+    .contact-item {
+      display: flex; align-items: center; gap: 1rem;
+    }
+    .contact-icon {
+      width: 48px; height: 48px; flex-shrink: 0;
+      background: rgba(212,133,26,0.1);
+      border: 1px solid rgba(212,133,26,0.2);
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.1rem;
+      transition: background 0.3s;
+    }
+    .contact-item:hover .contact-icon { background: rgba(212,133,26,0.2); }
+    .contact-item-text { display: flex; flex-direction: column; gap: 0.1rem; }
+    .contact-item-label {
+      font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--amber); font-weight: 600;
+    }
+    .contact-item-value { color: var(--cream); font-size: 0.95rem; }
+
+    /* Form */
+    .contact-form { display: flex; flex-direction: column; gap: 1.2rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
+    .form-group label {
+      font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
+      color: var(--cream2); font-weight: 600;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      background: rgba(240,230,204,0.05);
+      border: 1px solid rgba(240,230,204,0.1);
+      border-radius: 2px;
+      padding: 0.85rem 1rem;
+      color: var(--cream);
+      font-family: 'Karla', sans-serif;
+      font-size: 0.95rem;
+      transition: border-color 0.3s, background 0.3s;
+      outline: none;
+      resize: none;
+    }
+    .form-group select option { background: var(--bg2); }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      border-color: var(--amber);
+      background: rgba(212,133,26,0.06);
+    }
+    .form-group input::placeholder,
+    .form-group textarea::placeholder { color: rgba(240,230,204,0.25); }
+    .form-submit {
+      background: var(--amber); color: var(--bg);
+      border: none; padding: 1rem 2rem; border-radius: 2px;
+      font-family: 'Karla', sans-serif;
+      font-weight: 700; font-size: 0.9rem;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      cursor: pointer; width: 100%;
+      transition: background 0.3s, transform 0.2s;
+      margin-top: 0.5rem;
+    }
+    .form-submit:hover { background: var(--amber2); transform: translateY(-2px); }
+    .form-note {
+      font-size: 0.78rem; color: var(--cream2); text-align: center;
+      margin-top: -0.5rem;
+    }
+
+    /* ─── FOOTER ─── */
+    footer {
+      background: var(--bg);
+      border-top: 1px solid rgba(240,230,204,0.06);
+      padding: 3rem 4rem;
+      display: flex; align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap; gap: 1rem;
+    }
+    .footer-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.4rem; color: var(--cream);
+      text-decoration: none;
+    }
+    .footer-logo span { color: var(--amber); }
+    .footer-copy {
+      font-size: 0.78rem; color: var(--cream2);
+      letter-spacing: 0.04em;
+    }
+    .footer-links { display: flex; gap: 1.5rem; }
+    .footer-links a {
+      font-size: 0.78rem; color: var(--cream2);
+      text-decoration: none; letter-spacing: 0.06em;
+      text-transform: uppercase;
+      transition: color 0.3s;
+    }
+    .footer-links a:hover { color: var(--amber); }
+
+    /* ─── SCROLL REVEAL ─── */
+    .reveal {
+      opacity: 0; transform: translateY(40px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+    .reveal.visible {
+      opacity: 1; transform: translateY(0);
+    }
+    .reveal-delay-1 { transition-delay: 0.1s; }
+    .reveal-delay-2 { transition-delay: 0.2s; }
+    .reveal-delay-3 { transition-delay: 0.3s; }
+    .reveal-delay-4 { transition-delay: 0.4s; }
+
+    /* ─── HAMBURGER MOBILE ─── */
+    .nav-hamburger {
+      display: none; flex-direction: column; gap: 5px;
+      background: none; border: none; cursor: pointer; padding: 4px;
+    }
+    .nav-hamburger span {
+      display: block; width: 24px; height: 2px;
+      background: var(--cream); border-radius: 2px;
+      transition: transform 0.3s, opacity 0.3s;
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 1024px) {
+      nav { padding: 1.5rem 2rem; }
+      nav.scrolled { padding: 1rem 2rem; }
+      #about, #coverage, #contact { grid-template-columns: 1fr; gap: 3rem; padding: 5rem 2rem; }
+      #services, #how, #gallery, #testimonials { padding: 5rem 2rem; }
+      #hero { padding: 0; }
+      .hero-content { padding: 2rem; }
+      .hero-stats { left: 2rem; right: 2rem; bottom: 2rem; flex-wrap: wrap; gap: 1.5rem; }
+      .services-grid { grid-template-columns: 1fr; }
+      .steps { grid-template-columns: 1fr 1fr; }
+      .gallery-grid { grid-template-columns: 1fr 1fr; grid-template-rows: auto; }
+      .gallery-item:nth-child(n) { grid-column: span 1; }
+      .testimonials-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      footer { flex-direction: column; text-align: center; padding: 2rem; }
+      .hero-rings, .sawblade { display: none; }
+      .nav-links, .nav-cta { display: none; }
+      .nav-hamburger { display: flex; }
+      .about-visual { height: 300px; }
+      .wood-card-main { width: 240px; height: 300px; }
+    }
+    @media (max-width: 640px) {
+      .steps { grid-template-columns: 1fr; }
+      .region-list { grid-template-columns: 1fr; }
+      nav { padding: 1.2rem 1.5rem; }
+    }
+
+    /* ─── LOADING SCREEN ─── */
+    #loader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--bg);
+      display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 2rem;
+      transition: opacity 0.6s 0.3s, visibility 0.6s 0.3s;
+    }
+    #loader.done { opacity: 0; visibility: hidden; }
+    .loader-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.5rem; color: var(--cream);
+    }
+    .loader-logo span { color: var(--amber); }
+    .loader-bar {
+      width: 200px; height: 2px;
+      background: rgba(240,230,204,0.1); border-radius: 2px; overflow: hidden;
+    }
+    .loader-fill {
+      height: 100%; background: var(--amber);
+      animation: loadFill 1.5s ease-in-out forwards;
+      border-radius: 2px;
+    }
+    @keyframes loadFill {
+      from { width: 0; } to { width: 100%; }
+    }
+
+    /* ─── MOBILE MENU ─── */
+    .mobile-menu {
+      display: none; position: fixed; inset: 0; z-index: 200;
+      background: var(--bg); flex-direction: column;
+      align-items: center; justify-content: center;
+      gap: 2rem;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2rem; color: var(--cream); text-decoration: none;
+      transition: color 0.3s;
+    }
+    .mobile-menu a:hover { color: var(--amber); }
+    .mobile-close {
+      position: absolute; top: 1.5rem; right: 2rem;
+      background: none; border: none; cursor: pointer;
+      font-size: 1.8rem; color: var(--cream); line-height: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loader -->
+  <div id="loader">
+    <div class="loader-logo">Tartak<span>Mobil</span></div>
+    <div class="loader-bar"><div class="loader-fill"></div></div>
+  </div>
+
+  <!-- Custom Cursor -->
+  <div class="cursor" id="cursor"></div>
+  <div class="cursor-ring" id="cursorRing"></div>
+
+  <!-- Mobile Menu -->
+  <div class="mobile-menu" id="mobileMenu">
+    <button class="mobile-close" id="mobileClose">✕</button>
+    <a href="#about" onclick="closeMobile()">O nas</a>
+    <a href="#services" onclick="closeMobile()">Usługi</a>
+    <a href="#how" onclick="closeMobile()">Jak działamy</a>
+    <a href="#coverage" onclick="closeMobile()">Zasięg</a>
+    <a href="#contact" onclick="closeMobile()">Kontakt</a>
+  </div>
+
+  <!-- Navigation -->
+  <nav id="navbar">
+    <a class="nav-logo" href="#">Tartak<span>Mobil</span></a>
+    <ul class="nav-links">
+      <li><a href="#about">O nas</a></li>
+      <li><a href="#services">Usługi</a></li>
+      <li><a href="#how">Jak działamy</a></li>
+      <li><a href="#coverage">Zasięg</a></li>
+      <li><a href="#testimonials">Opinie</a></li>
+    </ul>
+    <a class="nav-cta" href="#contact">Bezpłatna wycena</a>
+    <button class="nav-hamburger" id="hamburger" onclick="openMobile()">
+      <span></span><span></span><span></span>
+    </button>
+  </nav>
+
+  <!-- HERO -->
+  <section id="hero">
+    <div class="hero-bg"></div>
+    <svg class="hero-rings" viewBox="0 0 700 700" xmlns="http://www.w3.org/2000/svg">
+      <circle class="ring1" cx="350" cy="350" r="280" stroke-dasharray="8 16"/>
+      <circle class="ring2" cx="350" cy="350" r="230" stroke-dasharray="4 12"/>
+      <circle class="ring3" cx="350" cy="350" r="310" stroke-dasharray="2 20"/>
+      <circle class="ring4" cx="350" cy="350" r="180" stroke-dasharray="6 14"/>
+    </svg>
+    <svg class="sawblade" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <g fill="rgba(212,133,26,0.8)">
+        <circle cx="100" cy="100" r="35" fill="none" stroke="rgba(212,133,26,0.8)" stroke-width="2"/>
+        <circle cx="100" cy="100" r="10"/>
+        <path d="M100 100 L100 20 L110 30 L100 100" />
+        <path d="M100 100 L100 20 L90 30 L100 100" />
+        <path d="M100 100 L180 100 L170 110 L100 100" />
+        <path d="M100 100 L180 100 L170 90 L100 100" />
+        <path d="M100 100 L100 180 L110 170 L100 100" />
+        <path d="M100 100 L100 180 L90 170 L100 100" />
+        <path d="M100 100 L20 100 L30 110 L100 100" />
+        <path d="M100 100 L20 100 L30 90 L100 100" />
+        <path d="M100 100 L155 45 L160 60 L100 100" />
+        <path d="M100 100 L155 45 L145 52 L100 100" />
+        <path d="M100 100 L45 155 L60 160 L100 100" />
+        <path d="M100 100 L45 155 L52 145 L100 100" />
+        <path d="M100 100 L155 155 L145 162 L100 100" />
+        <path d="M100 100 L155 155 L162 145 L100 100" />
+        <path d="M100 100 L45 45 L52 58 L100 100" />
+        <path d="M100 100 L45 45 L58 52 L100 100" />
+      </g>
+    </svg>
+    <div class="hero-content">
+      <div class="hero-eyebrow">Mobilna Tartak Polska</div>
+      <h1>Przetniemy<br>drewno<em>u Ciebie</em></h1>
+      <p class="hero-desc">
+        Przyjeżdżamy do Ciebie z profesjonalną piłą taśmową. Przetniemy kłody na belki, deski
+        i tarcicę bezpośrednio na Twojej posesji — bez transportu, bez strat.
+      </p>
+      <div class="hero-btns">
+        <a class="btn-primary" href="#contact">Zamów wizytę</a>
+        <a class="btn-outline" href="#how">Jak to działa?</a>
+      </div>
+    </div>
+    <div class="hero-stats">
+      <div class="stat">
+        <span class="stat-num">Ogromne</span>
+        <span class="stat-label">Doświadczenie</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">Bez liku</span>
+        <span class="stat-label">Zadowolonych klientów</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">16</span>
+        <span class="stat-label">Województw</span>
+      </div>
+    </div>
+    <div class="hero-scroll">
+      <div class="scroll-line"></div>
+      <span>Przewiń</span>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about">
+    <div class="about-visual reveal">
+      <div class="wood-card wood-card-main">
+        <div class="wood-lines"></div>
+      </div>
+      <div class="wood-card wood-card-sm">
+        <div class="icon-circle">🌳</div>
+        <p style="font-size:0.8rem;color:var(--cream2);text-align:center;line-height:1.5;">Świeże drewno prosto z lasu — bez pośredników</p>
+      </div>
+    </div>
+    <div class="about-content">
+      <span class="section-label reveal">O nas</span>
+      <h2 class="reveal reveal-delay-1">Tartak, który <em>przyjedzie do Ciebie</em></h2>
+      <p class="reveal reveal-delay-2">
+        Jesteśmy rodzinną firmą z potężnym doświadczeniem w przetarciu drewna.
+        Nasz mobilny tartak to profesjonalna piła taśmowa zamontowana na przyczepie —
+        gotowa do pracy w każdym terenie na terenie całej Polski.
+      </p>
+      <p class="reveal reveal-delay-2">
+        Nie musisz wynajmować transportu ani martwić się stratami podczas przewozu.
+        Przyjeżdżamy do Ciebie, tniemy na miejscu i zostawiamy gotowe materiały
+        dokładnie tam, gdzie ich potrzebujesz.
+      </p>
+      <div class="about-pills reveal reveal-delay-3">
+        <span class="pill">🌲 Dąb</span>
+        <span class="pill">🌲 Sosna</span>
+        <span class="pill">🌲 Świerk</span>
+        <span class="pill">🌲 Buk</span>
+        <span class="pill">🌲 Lipa</span>
+        <span class="pill">🌲 Modrzew</span>
+        <span class="pill">🌲 Jesion</span>
+        <span class="pill">+ więcej</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- SERVICES -->
+  <section id="services">
+    <div class="services-header">
+      <span class="section-label reveal">Usługi</span>
+      <h2 class="reveal reveal-delay-1">Co możemy <em>dla Ciebie</em> zrobić</h2>
+    </div>
+    <div class="services-grid">
+      <div class="service-card reveal">
+        <div class="service-num">01</div>
+        <div class="service-icon">🪓</div>
+        <h3>Przetarcie kłód</h3>
+        <p>Tniemy kłody drewniane na belki, deski i tarcice dowolnych rozmiarów — według Twoich specyfikacji.</p>
+        <a class="service-link" href="#contact">Wycena →</a>
+      </div>
+      <div class="service-card reveal reveal-delay-1">
+        <div class="service-num">02</div>
+        <div class="service-icon">🏗️</div>
+        <h3>Belki konstrukcyjne</h3>
+        <p>Belki na domy, stodoły, altany, wiaty, pergole i inne konstrukcje drewniane — przygotowane na Twojej działce.</p>
+        <a class="service-link" href="#contact">Wycena →</a>
+      </div>
+      <div class="service-card reveal reveal-delay-2">
+        <div class="service-num">03</div>
+        <div class="service-icon">🚪</div>
+        <h3>Deski i łaty</h3>
+        <p>Deski podłogowe, szalunkowe, boazeryjne i łaty dachowe — cięte dokładnie na wymiar bez odpadów.</p>
+        <a class="service-link" href="#contact">Wycena →</a>
+      </div>
+      <div class="service-card reveal">
+        <div class="service-num">04</div>
+        <div class="service-icon">🌳</div>
+        <h3>Przetarcie po wycince</h3>
+        <p>Właśnie wyciąłeś drzewo? Przyjedziemy od razu i zamienimy je w użyteczne drewno — bez marnowania.</p>
+        <a class="service-link" href="#contact">Wycena →</a>
+      </div>
+      <div class="service-card reveal reveal-delay-1">
+        <div class="service-num">05</div>
+        <div class="service-icon">📐</div>
+        <h3>Krojenie na wymiar</h3>
+        <p>Docinamy elementy do Twoich projektów stolarskich, remontowych lub budowlanych z dokładnością do milimetra.</p>
+        <a class="service-link" href="#contact">Wycena →</a>
+      </div>
+      <div class="service-card reveal reveal-delay-2">
+        <div class="service-num">06</div>
+        <div class="service-icon">🚛</div>
+        <h3>Mobilność po całej Polsce</h3>
+        <p>Przyjeżdżamy wszędzie — do lasu, na działkę, do domu, do firmy. Wycena dojazdu gratis.</p>
+        <a class="service-link" href="#contact">Wycena →</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <section id="how">
+    <div class="how-header">
+      <span class="section-label reveal">Jak działamy</span>
+      <h2 class="reveal reveal-delay-1">Prosto, szybko, <em>bez komplikacji</em></h2>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-dot">
+          📞
+          <span class="step-num">1</span>
+        </div>
+        <h4>Kontakt i wycena</h4>
+        <p>Zadzwoń lub napisz. Opowiedz nam o swoim drewnie i wymaganiach — przygotujemy bezpłatną wycenę.</p>
+      </div>
+      <div class="step reveal reveal-delay-1">
+        <div class="step-dot">
+          📅
+          <span class="step-num">2</span>
+        </div>
+        <h4>Ustalamy termin</h4>
+        <p>Wybieramy wspólnie dogodny dzień. Elastycznie dopasowujemy się do Twojego harmonogramu.</p>
+      </div>
+      <div class="step reveal reveal-delay-2">
+        <div class="step-dot">
+          🚚
+          <span class="step-num">3</span>
+        </div>
+        <h4>Przyjeżdżamy do Ciebie</h4>
+        <p>Nasz tartak przyjeżdża bezpośrednio na Twoją posesję — gotowy do pracy od momentu przyjazdu.</p>
+      </div>
+      <div class="step reveal reveal-delay-3">
+        <div class="step-dot">
+          ✅
+          <span class="step-num">4</span>
+        </div>
+        <h4>Gotowe drewno na miejscu</h4>
+        <p>Przetarte deski i belki leżą tam, gdzie ich potrzebujesz. Żadnego transportu, żadnych strat.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- GALLERY -->
+  <section id="gallery">
+    <div class="gallery-header">
+      <span class="section-label reveal">Galeria</span>
+      <h2 class="reveal reveal-delay-1">Natura w każdym <em>słoju drewna</em></h2>
+    </div>
+    <div class="gallery-grid reveal">
+      <div class="gallery-item">
+        <div class="gallery-fill wood-texture-1"></div>
+        <div class="gallery-overlay"><span>Dąb szypułkowy</span></div>
+      </div>
+      <div class="gallery-item">
+        <div class="gallery-fill wood-texture-2"></div>
+        <div class="gallery-overlay"><span>Sosna zwyczajna</span></div>
+      </div>
+      <div class="gallery-item">
+        <div class="gallery-fill wood-texture-3"></div>
+        <div class="gallery-overlay"><span>Buk pospolity</span></div>
+      </div>
+      <div class="gallery-item">
+        <div class="gallery-fill wood-texture-4"></div>
+        <div class="gallery-overlay"><span>Świerk pospolity</span></div>
+      </div>
+      <div class="gallery-item">
+        <div class="gallery-fill wood-texture-5"></div>
+        <div class="gallery-overlay"><span>Modrzew europejski</span></div>
+      </div>
+      <div class="gallery-item">
+        <div class="gallery-fill wood-texture-6"></div>
+        <div class="gallery-overlay"><span>Jesion wyniosły</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- COVERAGE -->
+  <section id="coverage">
+    <div class="coverage-content">
+      <span class="section-label reveal">Zasięg</span>
+      <h2 class="reveal reveal-delay-1">Cała <em>Polska</em> w zasięgu naszej piły</h2>
+      <p class="reveal reveal-delay-2">
+        Obsługujemy klientów w całej Polsce. Niezależnie czy mieszkasz na wsi, w małym miasteczku
+        czy w odległym lesie — dojedziemy do Ciebie.
+      </p>
+      <p class="reveal reveal-delay-2">
+        Koszt dojazdu wyceniamy indywidualnie. Dla zleceń powyżej 10 m³ dojazd do 100 km jest gratis!
+      </p>
+      <div class="region-list reveal reveal-delay-3">
+        <span class="region-item">Mazowieckie</span>
+        <span class="region-item">Małopolskie</span>
+        <span class="region-item">Wielkopolskie</span>
+        <span class="region-item">Śląskie</span>
+        <span class="region-item">Łódzkie</span>
+        <span class="region-item">Dolnośląskie</span>
+        <span class="region-item">Lubelskie</span>
+        <span class="region-item">Podkarpackie</span>
+        <span class="region-item">Kujawsko-Pomorskie</span>
+        <span class="region-item">Warmińsko-Mazurskie</span>
+        <span class="region-item">Podlaskie</span>
+        <span class="region-item">Zachodniopomorskie</span>
+        <span class="region-item">Lubuskie</span>
+        <span class="region-item">Opolskie</span>
+        <span class="region-item">Świętokrzyskie</span>
+        <span class="region-item">Pomorskie</span>
+      </div>
+    </div>
+    <div class="poland-map reveal reveal-delay-2">
+      <div class="map-container">
+        <!-- Simplified Poland SVG outline -->
+        <svg class="map-svg" viewBox="150 50 600 600" xmlns="http://www.w3.org/2000/svg">
+          <path d="M 183,142.16218 L 190,146.36218 L 194.8,149.36218 C 194.8,149.36218 201.4,157.91218 203.2,157.76218 C 205,157.61218 203.2,151.76218 203.2,151.76218 L 205,143.36218 L 208.6,137.36218 L 206.2,130.76218 C 206.2,130.76218 203.5,133.91218 200.2,132.56218 C 196.9,131.21218 193,127.16218 193,127.16218 L 187,131.36218 L 181,128.36218 L 181,116.36218 L 187,120.56218 L 193,122.36218 L 202,119.36218 L 212.8,118.76218 L 224.8,116.96218 L 236.2,114.56218 L 251.8,110.36218 L 262.6,107.96218 L 272.2,106.16218 L 284.8,104.36218 C 284.8,104.36218 292.15,104.36218 296.2,101.36218 C 300.25,98.362181 302.2,92.362183 302.2,92.362183 L 310,85.762183 L 319.6,79.162183 L 329.8,75.562183 L 343,74.362183 L 358,71.362183 L 371.2,68.962183 L 388,68.362183 L 400,65.362183 L 406,62.362183 L 416.2,59.362183 L 425.2,58.762183 L 442,68.362183 L 448.6,74.962183 C 448.6,74.962183 452.04664,79.463642 454,83.962183 C 454.60061,85.345381 450.4,83.362183 450.4,83.362183 L 447.7,77.062183 L 444.4,73.162183 L 435.4,66.262183 L 427,62.362183 L 427,71.362183 L 427.6,80.362183 L 429.4,89.362183 L 430,98.362183 L 436.6,104.36218 L 442,110.36218 L 453.4,112.16218 L 462.4,111.56218 L 476.8,108.56218 L 485.2,104.96218 C 485.2,104.96218 489.55,99.712183 493,99.562183 C 496.45,99.412183 499,104.36218 499,104.36218 L 526,107.36218 L 544,113.36218 L 570.4,117.56218 L 593.2,121.16218 L 607,123.56218 L 622,125.36218 L 640,125.36218 L 649,122.36218 L 658,122.36218 L 670,119.36218 L 677.95,119.51218 L 689.2,125.96218 L 694,134.36218 L 703,140.36218 L 707.5,145.61218 L 709,158.36218 L 709,170.36218 L 712.75,178.76218 L 713.2,193.16218 L 716.5,202.76218 L 718,217.76218 L 722.16391,228.56218 C 722.16391,228.56218 722.7658,234.81646 723.28956,238.60102 C 724.05095,244.10267 725.15125,240.88777 725.60556,246.42324 C 725.94239,250.52721 728.34948,250.75373 728.59375,254.73718 C 728.8375,258.71218 727.54638,261.61579 729.4,265.76218 C 731.10156,269.56843 734.8,276.56218 734.8,276.56218 L 731.2,284.96218 L 722.8,292.76218 C 722.8,292.76218 718,297.11218 713.8,298.76218 C 709.6,300.41218 709.9,302.96218 705.4,305.96218 C 700.9,308.96218 697,314.36218 697,314.36218 C 697,314.36218 688.3,318.71218 689.8,323.96218 C 691.3,329.21218 702.4,334.16218 702.4,334.16218 L 712.6,341.36218 L 715,353.36218 L 715,368.36218 L 714.2,383.26218 L 715.2,393.96218 L 714,408.36218 L 717,420.36218 L 723,432.36218 L 729,438.36218 L 735,450.36218 L 738,456.36218 L 744,461.16218 C 741.8,461.76223 740.2,463.44485 738,462.36218 L 732,471.36218 L 738,480.36218 L 747,486.36218 L 741,498.36218 L 734.4,499.56218 L 715.65,517.26218 L 696.3,537.36218 L 678.15,555.66218 L 659.4,577.56218 L 651,582.36218 L 658.8,594.96218 L 655.2,602.76218 L 657,618.36218 L 664.2,628.56218 L 663.6,641.16218 L 655.2,634.56218 L 645,633.36218 L 630,624.36218 L 615,621.36218 L 603,612.36218 L 594,606.36218 L 579,600.36218 L 567,591.36218 L 555,594.36218 L 543,603.36218 L 531,606.36218 L 522,600.36218 L 513,591.36218 L 501,594.36218 L 495,600.36218 L 489,615.36218 L 477,609.36218 L 465,612.36218 L 468,597.36218 L 465,588.36218 L 459,573.36218 L 453,567.36218 L 447,570.36218 L 438,579.36218 L 435,585.36218 L 429,585.36218 L 420,588.36218 L 413.25,577.36218 C 411.75,572.36218 411,563.36218 411,563.36218 L 402,554.36218 L 402,545.36218 L 390,533.36218 L 378,524.36218 L 366,518.36218 L 354,530.36218 L 345,518.36218 L 336,506.36218 L 342,497.36218 L 348,491.36218 L 339,485.36218 L 327,485.36218 L 309,482.36218 C 309,482.36218 299.25,473.36218 297,473.36218 C 294.75,473.36218 295.8722,476.02203 300,484.76218 C 301.91326,488.81329 300.75,490.16218 303.3,493.16218 C 305.61732,495.88844 303,500.36218 303,500.36218 L 297,499.16218 L 291,502.76218 C 291,502.76218 285.45,510.26218 282,509.36218 C 278.55,508.46218 274.2,499.76218 274.2,499.76218 L 271.2,491.36218 L 265.2,479.36218 L 257.4,471.56218 L 263.4,463.76218 C 263.4,463.76218 272.25,462.86218 273,458.36218 C 273.75,453.86218 268.8,449.36218 268.8,449.36218 L 264,443.36218 L 249,440.36218 L 231,437.36218 L 216,434.36218 L 207,419.36218 L 204,410.36218 L 193.2,407.36218 C 193.2,407.36218 190.5,409.16218 189.6,411.56218 C 188.7,413.96218 189,417.56218 189,417.56218 L 183,416.36218 C 183,416.36218 186.3,410.66218 187.8,406.16218 C 189.3,401.66218 189,398.36218 189,398.36218 C 189,398.36218 195.6,385.76218 195.6,385.76218 C 195.6,385.76218 197.25,378.71218 192,366.56218 C 189.375,360.48718 186.97503,354.18179 183.05629,349.02284 C 179.13756,343.8639 180.45003,339.78179 177.6,334.76218 C 178.94997,329.74257 180,323.36218 180,323.36218 L 189,311.36218 L 192,299.36218 L 189,293.36218 L 189,284.36218 L 183,275.36218 L 183.6,263.96218 L 189,254.36218 C 189,254.36218 186.45,251.21218 182.7,247.46218 C 178.95,243.71218 174,239.36218 174,239.36218 L 169.8,230.36218 L 161.4,221.96218 L 167.4,212.96218 C 167.4,212.96218 172.2,210.41218 177.6,202.76218 C 183,195.11218 187.2,184.76218 187.2,184.76218 L 189,173.36218 L 183,164.36218 L 183,142.16218 z "
+
+            fill="rgba(42,92,24,0.15)" stroke="rgba(42,92,24,0.4)" stroke-width="2"/>
+          
+          <!-- Major cities dots -->
+          <circle cx="550" cy="330" r="5" fill="var(--amber)" opacity="0.9"/>
+          <text x="562" y="330" font-size="13" fill="var(--cream2)" font-family="Karla, sans-serif">Warszawa</text>
+          <circle cx="477" cy="528" r="4" fill="var(--amber)" opacity="0.7"/>
+          <text x="489" y="528" font-size="11" fill="var(--cream2)" font-family="Karla, sans-serif">Kraków</text>
+          <circle cx="320" cy="280" r="4" fill="var(--amber)" opacity="0.7"/>
+          <text x="332" y="280" font-size="11" fill="var(--cream2)" font-family="Karla, sans-serif">Poznań</text>
+          <circle cx="300" cy="420" r="4" fill="var(--amber)" opacity="0.7"/>
+          <text x="312" y="420" font-size="11" fill="var(--cream2)" font-family="Karla, sans-serif">Wrocław</text>
+          <circle cx="650" cy="420" r="4" fill="var(--amber)" opacity="0.7"/>
+          <text x="662" y="420" font-size="11" fill="var(--cream2)" font-family="Karla, sans-serif">Lublin</text>
+          <circle cx="435" cy="108" r="4" fill="var(--amber)" opacity="0.7"/>
+          <text x="383" y="108" font-size="11" fill="var(--cream2)" font-family="Karla, sans-serif">Gdańsk</text>
+          <circle cx="198" cy="180" r="4" fill="var(--amber)" opacity="0.7"/>
+          <text x="210" y="180" font-size="11" fill="var(--cream2)" font-family="Karla, sans-serif">Szczecin</text>
+          <circle cx="685" cy="245" r="4" fill="var(--amber)" opacity="0.7"/>
+          <text x="627" y="245" font-size="11" fill="var(--cream2)" font-family="Karla, sans-serif">Białystok</text>
+          <!-- Coverage area pulse -->
+          <circle cx="210" cy="145" r="60" fill="none" stroke="rgba(212,133,26,0.1)" stroke-width="1">
+            <animate attributeName="r" from="40" to="120" dur="3s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" from="0.3" to="0" dur="3s" repeatCount="indefinite"/>
+          </circle>
+        </svg>
+        <div class="pulse-dot" style="top: 50%; left: 82%;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- TESTIMONIALS -->
+  <section id="testimonials">
+    <div class="testimonials-header">
+      <span class="section-label reveal">Opinie klientów</span>
+      <h2 class="reveal reveal-delay-1">Co mówią o nas <em>nasi klienci</em></h2>
+    </div>
+    <div class="testimonials-grid">
+      <div class="testimonial-card reveal">
+        <span class="quote-mark">"</span>
+        <p class="testimonial-text">
+          Miałem 8 grubych dębów do przetarcia po wycince. TartakMobil przyjechał na następny dzień,
+          sprawnie pociął wszystko na belki i deski. Zaoszczędziłem na transporcie i nic się nie zmarnowało.
+          Polecam z pełnym przekonaniem!
+        </p>
+        <div class="testimonial-author">
+          <div class="author-avatar">👨‍🌾</div>
+          <div>
+            <div class="stars">★★★★★</div>
+            <div class="author-name">Marek Kowalski</div>
+            <div class="author-location">Mazowieckie</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal reveal-delay-1">
+        <span class="quote-mark">"</span>
+        <p class="testimonial-text">
+          Budujemy dom z drewna i potrzebowaliśmy belek na miarę. Panowie przyjechali do nas
+          pod Kraków, sprawnie zrobili robotę. Materiał dokładnie taki jaki zamówiliśmy. Super współpraca!
+        </p>
+        <div class="testimonial-author">
+          <div class="author-avatar">🏠</div>
+          <div>
+            <div class="stars">★★★★★</div>
+            <div class="author-name">Anna i Piotr Nowak</div>
+            <div class="author-location">Małopolskie</div>
+          </div>
+        </div>
+      </div>
+      <div class="testimonial-card reveal reveal-delay-2">
+        <span class="quote-mark">"</span>
+        <p class="testimonial-text">
+          Profesjonalna obsługa, terminowość i uczciwe ceny. Przetarli mi starą sosnę którą wyciąłem
+          — teraz mam piękne deski na podłogę. Rzadko się trafiają takie firmy. Już polecam sąsiadom!
+        </p>
+        <div class="testimonial-author">
+          <div class="author-avatar">🌲</div>
+          <div>
+            <div class="stars">★★★★★</div>
+            <div class="author-name">Tomasz Wójcik</div>
+            <div class="author-location">Podkarpacie</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact">
+    <div class="contact-info">
+      <span class="section-label reveal">Kontakt</span>
+      <h2 class="reveal reveal-delay-1">Zadzwoń lub napisz — <em>wycena gratis</em></h2>
+      <p class="reveal reveal-delay-2">
+        Nie czekaj! Skontaktuj się z nami i powiedz nam czego potrzebujesz.
+        W ciągu 24 godzin oddzwonimy z bezpłatną wyceną.
+      </p>
+      <div class="contact-items reveal reveal-delay-3">
+        <div class="contact-item">
+          <div class="contact-icon">📞</div>
+          <div class="contact-item-text">
+            <span class="contact-item-label">Telefon</span>
+            <span class="contact-item-value">+48 xxx xxx xxx</span>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">✉️</div>
+          <div class="contact-item-text">
+            <span class="contact-item-label">E-mail</span>
+            <span class="contact-item-value">brak</span>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">📍</div>
+          <div class="contact-item-text">
+            <span class="contact-item-label">Siedziba</span>
+            <span class="contact-item-value">Cała Polska — dojeżdżamy wszędzie</span>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon">🕐</div>
+          <div class="contact-item-text">
+            <span class="contact-item-label">Godziny pracy</span>
+            <span class="contact-item-value">Pn–Sb: 7:00 – 18:00</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="contact-form-wrapper reveal reveal-delay-2">
+      <div class="contact-form">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Imię i nazwisko</label>
+            <input type="text" placeholder="Jan Kowalski">
+          </div>
+          <div class="form-group">
+            <label>Telefon</label>
+            <input type="tel" placeholder="+48 600 000 000">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Miejscowość / Region</label>
+          <input type="text" placeholder="np. Radom, woj. mazowieckie">
+        </div>
+        <div class="form-group">
+          <label>Rodzaj usługi</label>
+          <select>
+            <option value="">Wybierz usługę...</option>
+            <option>Przetarcie kłód</option>
+            <option>Belki konstrukcyjne</option>
+            <option>Deski i łaty</option>
+            <option>Przetarcie po wycince</option>
+            <option>Krojenie na wymiar</option>
+            <option>Inne</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Opis zlecenia</label>
+          <textarea rows="4" placeholder="Opisz rodzaj i ilość drewna, wymiary, dodatkowe informacje..."></textarea>
+        </div>
+        <button class="form-submit" onclick="handleSubmit(this)">
+          Wyślij zapytanie o wycenę
+        </button>
+        <p class="form-note">Odpowiadamy w ciągu 24 godzin • Wycena zawsze bezpłatna</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer>
+    <a class="footer-logo" href="#">Tartak<span>Mobil</span></a>
+    <p class="footer-copy">© <script>document.write(new Date().getFullYear())</script> TartakMobil. Wszystkie prawa zastrzeżone.</p>
+    <div class="footer-links">
+      <a href="#about">O nas</a>
+      <a href="#services">Usługi</a>
+      <a href="#contact">Kontakt</a>
+    </div>
+  </footer>
+
+  <script>
+    // ─── LOADER ───
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('loader').classList.add('done');
+      }, 1600);
+    });
+
+    // ─── CUSTOM CURSOR ───
+    const cursor = document.getElementById('cursor');
+    const ring = document.getElementById('cursorRing');
+    let mx = 0, my = 0, rx = 0, ry = 0;
+    document.addEventListener('mousemove', e => {
+      mx = e.clientX; my = e.clientY;
+      cursor.style.left = mx + 'px'; cursor.style.top = my + 'px';
+    });
+    function animateRing() {
+      rx += (mx - rx) * 0.12;
+      ry += (my - ry) * 0.12;
+      ring.style.left = rx + 'px'; ring.style.top = ry + 'px';
+      requestAnimationFrame(animateRing);
+    }
+    animateRing();
+    document.querySelectorAll('a, button, .service-card, .testimonial-card, .pill').forEach(el => {
+      el.addEventListener('mouseenter', () => { cursor.classList.add('hover'); ring.classList.add('hover'); });
+      el.addEventListener('mouseleave', () => { cursor.classList.remove('hover'); ring.classList.remove('hover'); });
+    });
+
+    // ─── NAV SCROLL ───
+    const navbar = document.getElementById('navbar');
+    window.addEventListener('scroll', () => {
+      navbar.classList.toggle('scrolled', window.scrollY > 50);
+    });
+
+    // ─── SCROLL REVEAL ───
+    const reveals = document.querySelectorAll('.reveal');
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+    }, { threshold: 0.12 });
+    reveals.forEach(el => observer.observe(el));
+
+    // ─── MOBILE MENU ───
+    function openMobile() { document.getElementById('mobileMenu').classList.add('open'); }
+    function closeMobile() { document.getElementById('mobileMenu').classList.remove('open'); }
+    document.getElementById('mobileClose').onclick = closeMobile;
+
+    // ─── FORM SUBMIT ───
+    function handleSubmit(btn) {
+      btn.textContent = '✓ Wiadomość wysłana!';
+      btn.style.background = 'var(--green2)';
+      btn.disabled = true;
+      setTimeout(() => {
+        btn.textContent = 'Wyślij zapytanie o wycenę';
+        btn.style.background = '';
+        btn.disabled = false;
+      }, 3000);
+    }
+
+    // ─── SMOOTH ACTIVE NAV ───
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-links a');
+    window.addEventListener('scroll', () => {
+      let current = '';
+      sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) current = s.id; });
+      navLinks.forEach(a => {
+        a.style.color = a.getAttribute('href') === '#' + current ? 'var(--cream)' : '';
+      });
+    });
+
+    // ─── PARALLAX HERO ───
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY;
+      const heroContent = document.querySelector('.hero-content');
+      if (heroContent && y < window.innerHeight) {
+        heroContent.style.transform = `translateY(${y * 0.2}px)`;
+        heroContent.style.opacity = 1 - y / (window.innerHeight * 0.8);
+      }
+    });
+  </script>
+</body>
+</html>
