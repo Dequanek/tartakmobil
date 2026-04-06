@@ -1416,6 +1416,10 @@
         heroContent.style.opacity = 1 - y / (window.innerHeight * 0.8);
       }
     });
+    
+    if (window.location.href.endsWith(".html")) {
+      window.location.href = window.location.href.replace(".html", "");
+    }
   </script>
 </body>
 </html>
