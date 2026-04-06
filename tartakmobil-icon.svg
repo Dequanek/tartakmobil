@@ -1,0 +1,18 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <rect x="0" y="0" width="512" height="512" rx="100" fill="#0F1509"/>
+  <!-- subtle green glow -->
+  <ellipse cx="256" cy="200" rx="200" ry="170" fill="#2A5C18" opacity="0.18"/>
+  <!-- Shield outer -->
+  <path d="M256,52 L412,120 L412,292 Q412,420 256,472 Q100,420 100,292 L100,120 Z"
+    fill="#141C0C" stroke="#D4851A" stroke-width="8"/>
+  <!-- Shield inner ring -->
+  <path d="M256,88 L384,148 L384,288 Q384,396 256,440 Q128,396 128,288 L128,148 Z"
+    fill="none" stroke="#D4851A" stroke-width="3" opacity="0.35"/>
+  <!-- Amber T -->
+  <text x="256" y="368" text-anchor="middle"
+    font-family="Georgia, 'DejaVu Serif', serif"
+    font-size="220" font-weight="bold"
+    fill="#D4851A" letter-spacing="-4">T</text>
+  <!-- Green accent bar -->
+  <line x1="176" y1="392" x2="336" y2="392" stroke="#3D7A27" stroke-width="9" stroke-linecap="round"/>
+</svg>
